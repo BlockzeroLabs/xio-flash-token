@@ -158,7 +158,7 @@ contract FlashToken is IERC20 {
         address to,
         uint256 value
     ) external override returns (bool) {
-        uint256 fromAllowance = allowance[from][msg.sender]; //didn't understand this logic. 
+        uint256 fromAllowance = allowance[from][msg.sender]; 
         if (fromAllowance != uint256(-1)) {
             // Allowance is implicitly checked with SafeMath's underflow protection
             allowance[from][msg.sender] = fromAllowance.sub(value);
