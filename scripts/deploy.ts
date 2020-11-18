@@ -11,7 +11,7 @@ async function main(): Promise<void> {
   // to make sure everything is compiled
   // await run("compile");
 
-  const INITIAL_MINTER = "0xDE174710543dCED471A5747Fe3060d11E881a356";
+  const INITIAL_MINTER = "0x9D1040827fD85ccd3B59Ab96FD8CAf0dbFcAC44e"; //Ganache address
 
   // We get the contract to deploy
   const FlashToken: ContractFactory = await ethers.getContractFactory("FlashToken");

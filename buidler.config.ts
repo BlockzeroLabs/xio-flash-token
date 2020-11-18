@@ -23,7 +23,6 @@ function createNetworkConfig(network?: string): { accounts: HDAccountsConfig; ur
   if (!process.env.INFURA_API_KEY) {
     throw new Error("Please set your INFURA_API_KEY");
   }
-
   return {
     accounts: {
       count: 10,
@@ -37,16 +36,16 @@ function createNetworkConfig(network?: string): { accounts: HDAccountsConfig; ur
 
 const config: BuidlerConfig = {
   defaultNetwork: "buidlerevm",
-  mocha: {
-    /* Without this property set, the "setTimeout" from the Greeter.js file wouldn't work. */
-    delay: true,
-  },
+  // mocha: {
+  //   /* Without this property set, the "setTimeout" from the Greeter.js file wouldn't work. */
+  //   delay: true,
+  // },
   networks: {
     buidlerevm: {
       chainId: 31337,
     },
-    coverage: {
-      url: "http://127.0.0.1:8555",
+    ganache: {
+      url: "http://127.0.0.1:7545",
     },
     goerli: {
       ...createNetworkConfig("goerli"),
