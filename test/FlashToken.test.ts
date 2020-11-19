@@ -1,10 +1,20 @@
-import { defaultAbiCoder, keccak256, toUtf8Bytes } from "ethers/lib/utils";
-import { expect, use } from "chai";
-import { Contract } from "ethers";
+import {
+  defaultAbiCoder,
+  hexlify,
+  keccak256,
+  toUtf8Bytes,
+} from "ethers/lib/utils";
+import { expect, use, util } from "chai";
+import { BigNumber, Contract } from "ethers";
+import { utils } from "ethers";
 import { deployContract, MockProvider, solidity } from "ethereum-waffle";
 import BasicToken from "../artifacts/FlashToken.json";
 import { Wallet } from "ethers";
 import BN from "bn.js";
+import { constants } from "ethers";
+import { ecsign } from "ethereumjs-util";
+import { ethers } from "@nomiclabs/buidler";
+
 use(solidity);
 
 describe("Flash token", async function () {
@@ -138,4 +148,52 @@ describe("Flash token", async function () {
     expect(await FlashToken.balanceOf(wallet.address)).to.equal(0);
     expect(await FlashToken.balanceOf(walletTo.address)).to.equal(AMOUNT);
   });
+  // it("permit", async () => {
+  //   await expect(FlashToken.mint(wallet.address, AMOUNT))
+  //     .to.emit(FlashToken, "Transfer")
+  //     .withArgs(ZERO_ADDRESS, wallet.address, AMOUNT);
+  //   expect(await FlashToken.balanceOf(wallet.address)).to.equal(
+  //     (await FlashToken.totalSupply()).add(new BN(AMOUNT))
+  //   );
+  //   const deadline: any = constants.MaxUint256;
+  //   const nonces = await FlashToken.nonces(wallet.address);
+  //   const encodeData: any = keccak256(
+  //     defaultAbiCoder.encode(
+  //       ["bytes32", "address", "address", "uint256", "uint256", "uint256"],
+  //       [
+  //         await FlashToken.PERMIT_TYPEHASH(),
+  //         wallet.address,
+  //         walletTo.address,
+  //         AMOUNT,
+  //         nonces,
+  //         deadline,
+  //       ]
+  //     )
+  //   );
+  //   const digest: any = keccak256(
+  //     defaultAbiCoder.encode(
+  //       ["bytes1", "bytes1", "bytes32", "bytes32"],
+  //       ["0x19", "0x01", , await FlashToken.getDomainSeparator(), encodeData]
+  //     )
+  //   );
+  //   const { v, r, s } = ecsign(
+  //     Buffer.from(digest.slice(2), "hex"),
+  //     Buffer.from(wallet.privateKey.slice(2), "hex")
+  //   );
+  //   await expect(
+  //     FlashToken.permit(
+  //       wallet.address,
+  //       walletTo.address,
+  //       AMOUNT,
+  //       deadline,
+  //       v,
+  //       hexlify(r),
+  //       hexlify(s)
+  //     )
+  //   ).to.emit(FlashToken, "Approval");
+  //   expect(
+  //     await FlashToken.allowance(wallet.address, walletTo.address)
+  //   ).to.equal(AMOUNT);
+  //   expect(await FlashToken.nonces(wallet.address)).to.equal(1);
+  // });
 });

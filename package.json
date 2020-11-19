@@ -70,5 +70,8 @@
     "test": "buidler test",
     "typechain": "buidler typechain",
     "deploy": "buidler run ./scripts/deploy.ts"
+  },
+  "dependencies": {
+    "ethereumjs-util": "^7.0.7"
   }
 }
