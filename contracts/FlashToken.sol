@@ -211,7 +211,7 @@ contract FlashToken is IERC20 {
 
     function flashMint(uint256 value, bytes calldata data) external {
         flashSupply = flashSupply.add(value);
-        require(address(this).balance.add( flashSupply) <= type(uint112).max, "FlashToken:: SUPPLY_LIMIT_EXCEED"); //disciss this max thing
+        require(address(this).balance.add( flashSupply) <= type(uint112).max, "FlashToken:: SUPPLY_LIMIT_EXCEED"); 
         balanceOf[msg.sender] = balanceOf[msg.sender].add(value);
         emit Transfer(address(0), msg.sender, value);
 
