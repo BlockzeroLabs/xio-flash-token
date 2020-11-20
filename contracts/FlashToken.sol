@@ -42,7 +42,7 @@ contract FlashToken is IERC20 {
     uint256 public override totalSupply;
     uint256 public flashSupply;
 
-    address public minter;
+    mapping(address=>bool) public minters;
 
     mapping(address => uint256) public override balanceOf;
     mapping(address => mapping(address => uint256)) public override allowance;
@@ -54,15 +54,15 @@ contract FlashToken is IERC20 {
     event Approval(address indexed owner, address indexed spender, uint256 value);
     event Transfer(address indexed from, address indexed to, uint256 value);
     event AuthorizationUsed(address indexed authorizer, bytes32 indexed nonce);
-    event ChangeMinter(address indexed minter);
 
     modifier onlyMinter {
-        require(msg.sender == minter, "FlashToken:: NOT_MINTER");
+        require(minters[msg.sender] == true, "FlashToken:: NOT_MINTER");
         _;
     }
 
-    constructor(address initialMinter) public {
-        _changeMinter(initialMinter);
+    constructor(address flashProtocol, address flashClaim) public {
+        minters[flashProtocol] = true;
+        minters[flashClaim] = true;
     }
 
     function _validateSignedData(
@@ -78,10 +78,6 @@ contract FlashToken is IERC20 {
         require(recoveredAddress != address(0) && recoveredAddress == signer, "FlashToken:: INVALID_SIGNATURE");
     }
 
-    function _changeMinter(address newMinter) internal {
-        minter = newMinter;
-        emit ChangeMinter(newMinter);
-    }
 
     function _mint(address to, uint256 value) internal {
         totalSupply = totalSupply.add(value);
@@ -132,10 +128,6 @@ contract FlashToken is IERC20 {
     function mint(address to, uint256 value) external onlyMinter returns (bool) {
         _mint(to, value);
         return true;
-    }
-
-    function changeMinter(address newMinter) external onlyMinter {
-        _changeMinter(newMinter);
     }
 
     function burn(uint256 value) external returns (bool) {
