@@ -1,5 +1,1 @@
-{
-  "hooks": {
-    "commit-msg": "commitlint --color false -e ${GIT_PARAMS}"
-  }
-}
+
