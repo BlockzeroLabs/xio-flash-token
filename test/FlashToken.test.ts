@@ -5,10 +5,11 @@ import {
   toUtf8Bytes,
   solidityPack
 } from "ethers/lib/utils";
-import { expect, use} from "chai";
+import { expect, use } from "chai";
 import { deployContract, MockProvider, solidity } from "ethereum-waffle";
-import BasicToken from "../artifacts/contracts/FlashToken.sol/FlashToken.json";
-import { constants } from "ethers";
+import FlashTokenArtifact from "../artifacts/contracts/FlashToken.sol/FlashToken.json";
+import MinterContractArtifact from "../artifacts/contracts/tests/FlashMinter.sol/FlashMinter.json";
+import { constants, ethers } from "ethers";
 import { ecsign } from "ethereumjs-util";
 import { mintTokens } from './utils/functions'
 
@@ -27,33 +28,33 @@ describe("Flash token", async () => {
     "0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6";
 
   beforeEach(async () => {
-    FlashToken = await deployContract(wallet, BasicToken, [wallet.address, wallet.address]);
+    FlashToken = await deployContract(wallet, FlashTokenArtifact, [wallet.address, wallet.address]);
   });
-  
+
 
   it("name", async () => {
     const name = await FlashToken.name();
     expect(name).to.be.equal("Flash Token");
   });
-  
-  
+
+
   it("symbol", async () => {
     expect(await FlashToken.symbol()).to.be.equal("FLASH");
   });
 
-  
+
   it("decimals", async () => {
     expect(await FlashToken.decimals()).to.be.equal(18);
   });
 
-  
+
   it("name hash", async () => {
     expect(keccak256(toUtf8Bytes("FLASH"))).to.be.equal(
       "0x345b72c36b14f1cee01efb8ac4b299dc7b8d873e28b4796034548a3d371a4d2f"
     );
   });
 
-  
+
   it("version hash", async () => {
     expect(keccak256(toUtf8Bytes("1"))).to.be.equal(
       "0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6"
@@ -91,7 +92,7 @@ describe("Flash token", async () => {
 
   it("transfer", async () => {
 
-    let AMOUNT = await mintTokens(FlashToken,wallet.address);
+    let AMOUNT = await mintTokens(FlashToken, wallet.address);
 
     await expect(FlashToken.transfer(walletTo.address, AMOUNT))
       .to.emit(FlashToken, "Transfer")
@@ -104,11 +105,11 @@ describe("Flash token", async () => {
 
   it("transfer fail -> this token address", async () => {
 
-    let AMOUNT = await mintTokens(FlashToken,wallet.address);
+    let AMOUNT = await mintTokens(FlashToken, wallet.address);
 
     await expect(FlashToken.transfer(FlashToken.address, AMOUNT))
       .to.be.revertedWith("FlashToken:: RECEIVER_IS_TOKEN_OR_ZERO");
- 
+
   });
 
 
@@ -120,39 +121,39 @@ describe("Flash token", async () => {
 
   it("transfer fail -> zero address", async () => {
 
-    let AMOUNT = await mintTokens(FlashToken,wallet.address);
-    
+    let AMOUNT = await mintTokens(FlashToken, wallet.address);
+
     await expect(FlashToken.transfer(constants.AddressZero, AMOUNT))
-    .to.be.revertedWith("FlashToken:: RECEIVER_IS_TOKEN_OR_ZERO");
- 
+      .to.be.revertedWith("FlashToken:: RECEIVER_IS_TOKEN_OR_ZERO");
+
   });
 
 
   it("transferFrom", async () => {
 
-    let AMOUNT = await mintTokens(FlashToken,wallet.address);
-    
+    let AMOUNT = await mintTokens(FlashToken, wallet.address);
+
     await FlashToken.approve(walletTo.address, AMOUNT);
     const Another = FlashToken.connect(walletTo);
-    
+
     await expect(Another.transferFrom(wallet.address, walletTo.address, AMOUNT))
       .to.emit(FlashToken, "Transfer")
       .withArgs(wallet.address, walletTo.address, AMOUNT);
-    
-      expect(
+
+    expect(
       await FlashToken.allowance(wallet.address, walletTo.address)
     ).to.equal(0);
-    
+
     expect(await FlashToken.balanceOf(wallet.address)).to.equal(0);
-    
+
     expect(await FlashToken.balanceOf(walletTo.address)).to.equal(AMOUNT);
   });
 
 
   it("permit", async () => {
 
-    let AMOUNT = await mintTokens(FlashToken,wallet.address);
-    
+    let AMOUNT = await mintTokens(FlashToken, wallet.address);
+
     const deadline: any = constants.MaxUint256;
     const nonces = await FlashToken.nonces(wallet.address);
 
@@ -193,12 +194,21 @@ describe("Flash token", async () => {
         hexlify(s)
       )
     ).to.emit(FlashToken, "Approval");
-    
-    expect(
-      await FlashToken.allowance(wallet.address, walletTo.address)
-    ).to.equal(AMOUNT);
-    
-    expect(await FlashToken.nonces(wallet.address)).to.equal(1);
-  
+
   });
+
+  it("flashmint", async () => {
+    let MinterContract: any = await deployContract(wallet, MinterContractArtifact, [FlashToken.address]);
+    let encode = ethers.utils.defaultAbiCoder.encode(['bool', 'uint256', 'address'], [false, '1000000000000000000', wallet.address]);
+    await expect(MinterContract.flashMint("1000000000000000000", encode)
+    ).to.emit(FlashToken, "Transfer");
+    expect(await FlashToken.flashSupply()).to.equal(0);
+  })
+
+  it("flashmint fail", async () => {
+    let MinterContract: any = await deployContract(wallet, MinterContractArtifact, [FlashToken.address]);
+    let encode = ethers.utils.defaultAbiCoder.encode(['bool', 'uint256', 'address'], [true, '1000000000000000000', wallet.address]);
+    await expect(MinterContract.flashMint("1000000000000000000", encode))
+      .to.be.revertedWith("FlashToken:: TRANSFER_EXCEED_BALANCE");
+  })
 });

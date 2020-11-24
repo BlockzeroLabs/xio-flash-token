@@ -53,9 +53,15 @@
     "smart-contracts",
     "solidity"
   ],
-  "license": "WTFPL",
+  "license": "MIT",
   "publishConfig": {
     "access": "public"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "sh ./pre-commit",
+      "pre-push": "yarn test"
+    }
   },
   "scripts": {
     "clean": "hardhat clean",
