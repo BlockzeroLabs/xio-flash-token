@@ -59,7 +59,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "sh ./pre-commit",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "sh ./pre-commit.sh",
       "pre-push": "yarn test"
     }
   },
@@ -75,9 +76,10 @@
     "prettier:list-different": "prettier --config .prettierrc --list-different \"**/*.{js,json,md,sol,ts}\"",
     "test": "hardhat test",
     "typechain": "hardhat typechain",
-    "deploy":"hardhat run ./scripts/deploy.ts"
+    "deploy": "hardhat run ./scripts/deploy.ts"
   },
   "dependencies": {
+    "@commitlint/cli": "^11.0.0",
     "ethereumjs-util": "^7.0.7"
   }
 }
