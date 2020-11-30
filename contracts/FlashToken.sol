@@ -42,7 +42,7 @@ contract FlashToken is IERC20 {
     uint256 public override totalSupply;
     uint256 public flashSupply;
 
-    mapping(address=>bool) public minters;
+    mapping(address => bool) public minters;
 
     mapping(address => uint256) public override balanceOf;
     mapping(address => mapping(address => uint256)) public override allowance;
@@ -77,7 +77,6 @@ contract FlashToken is IERC20 {
         // Explicitly disallow authorizations for address(0) as ecrecover returns address(0) on malformed messages
         require(recoveredAddress != address(0) && recoveredAddress == signer, "FlashToken:: INVALID_SIGNATURE");
     }
-
 
     function _mint(address to, uint256 value) internal {
         totalSupply = totalSupply.add(value);
@@ -150,7 +149,7 @@ contract FlashToken is IERC20 {
         address to,
         uint256 value
     ) external override returns (bool) {
-        uint256 fromAllowance = allowance[from][msg.sender]; 
+        uint256 fromAllowance = allowance[from][msg.sender];
         if (fromAllowance != uint256(-1)) {
             // Allowance is implicitly checked with SafeMath's underflow protection
             allowance[from][msg.sender] = fromAllowance.sub(value);
@@ -203,7 +202,7 @@ contract FlashToken is IERC20 {
 
     function flashMint(uint256 value, bytes calldata data) external {
         flashSupply = flashSupply.add(value);
-        require(address(this).balance.add( flashSupply) <= type(uint112).max, "FlashToken:: SUPPLY_LIMIT_EXCEED"); 
+        require(flashSupply <= type(uint112).max, "FlashToken:: SUPPLY_LIMIT_EXCEED");
         balanceOf[msg.sender] = balanceOf[msg.sender].add(value);
         emit Transfer(address(0), msg.sender, value);
 
