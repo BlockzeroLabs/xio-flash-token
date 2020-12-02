@@ -197,6 +197,60 @@ describe("Flash token", async () => {
 
   });
 
+  it("transferWithAuthorization", async () => {
+
+    let AMOUNT = await mintTokens(FlashToken,wallet.address);
+
+    const deadline: any = constants.MaxUint256;
+    const nonces = await FlashToken.nonces(wallet.address);
+
+    const nonceBytes = await ethers.utils.formatBytes32String(nonces);
+
+    const encodeData: any = keccak256(
+      defaultAbiCoder.encode(
+        ["bytes32", "address", "address", "uint256", "uint256", "uint256","bytes32"],
+        [
+          await FlashToken.TRANSFER_WITH_AUTHORIZATION_TYPEHASH(),
+          wallet.address,
+          walletTo.address,
+          AMOUNT,
+          "0",
+          deadline,
+          nonceBytes
+        ]
+      )
+    );
+
+    const digest: any = keccak256(
+      solidityPack(
+        ["bytes1", "bytes1", "bytes32", "bytes32"],
+        ["0x19", "0x01", , await FlashToken.getDomainSeparator(), encodeData]
+      )
+    );
+
+    const { v, r, s } = ecsign(
+      Buffer.from(digest.slice(2), "hex"),
+      Buffer.from(wallet.privateKey.slice(2), "hex")
+    );
+    
+    let Token = await FlashToken.connect(walletTo);
+
+    await expect(
+      Token.transferWithAuthorization(
+        wallet.address,
+        walletTo.address,
+        AMOUNT,
+        "0",
+        deadline,
+        nonceBytes,
+        v,
+        hexlify(r),
+        hexlify(s)
+      )
+    ).to.emit(FlashToken, "AuthorizationUsed");
+
+  });
+
   it("flashmint", async () => {
     let MinterContract: any = await deployContract(wallet, MinterContractArtifact, [FlashToken.address]);
     let encode = ethers.utils.defaultAbiCoder.encode(['bool', 'uint256', 'address'], [false, '1000000000000000000', wallet.address]);
