@@ -39,7 +39,6 @@ contract FlashToken is IERC20 {
     uint8 public constant decimals = 18;
 
     uint256 public override totalSupply;
-    uint256 public flashSupply;
 
     mapping(address => bool) public minters;
 
