@@ -8,7 +8,6 @@ import {
 import { expect, use } from "chai";
 import { deployContract, MockProvider, solidity } from "ethereum-waffle";
 import FlashTokenArtifact from "../artifacts/contracts/FlashToken.sol/FlashToken.json";
-import MinterContractArtifact from "../artifacts/contracts/tests/FlashMinter.sol/FlashMinter.json";
 import { constants, ethers } from "ethers";
 import { ecsign } from "ethereumjs-util";
 import { mintTokens } from './utils/functions'
@@ -250,19 +249,4 @@ describe("Flash token", async () => {
     ).to.emit(FlashToken, "AuthorizationUsed");
 
   });
-
-  it("flashmint", async () => {
-    let MinterContract: any = await deployContract(wallet, MinterContractArtifact, [FlashToken.address]);
-    let encode = ethers.utils.defaultAbiCoder.encode(['bool', 'uint256', 'address'], [false, '1000000000000000000', wallet.address]);
-    await expect(MinterContract.flashMint("1000000000000000000", encode)
-    ).to.emit(FlashToken, "Transfer");
-    expect(await FlashToken.flashSupply()).to.equal(0);
-  })
-
-  it("flashmint fail", async () => {
-    let MinterContract: any = await deployContract(wallet, MinterContractArtifact, [FlashToken.address]);
-    let encode = ethers.utils.defaultAbiCoder.encode(['bool', 'uint256', 'address'], [true, '1000000000000000000', wallet.address]);
-    await expect(MinterContract.flashMint("1000000000000000000", encode))
-      .to.be.revertedWith("FlashToken:: TRANSFER_EXCEED_BALANCE");
-  })
 });

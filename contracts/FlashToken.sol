@@ -4,7 +4,6 @@ pragma solidity 0.6.12;
 import "./libraries/SafeMath.sol";
 
 import "./interfaces/IERC20.sol";
-import "./interfaces/IFlashMinter.sol";
 
 // Lightweight token modelled after UNI-LP:
 // https://github.com/Uniswap/uniswap-v2-core/blob/v1.0.1/contracts/UniswapV2ERC20.sol
@@ -198,19 +197,5 @@ contract FlashToken is IERC20 {
         emit AuthorizationUsed(from, nonce);
 
         _transfer(from, to, value);
-    }
-
-    function flashMint(uint256 value, bytes calldata data) external {
-        flashSupply = flashSupply.add(value);
-        require(flashSupply <= type(uint112).max, "FlashToken:: SUPPLY_LIMIT_EXCEED");
-        balanceOf[msg.sender] = balanceOf[msg.sender].add(value);
-        emit Transfer(address(0), msg.sender, value);
-
-        IFlashMinter(msg.sender).executeOnFlashMint(data);
-
-        require(balanceOf[msg.sender] >= value, "FlashToken:: TRANSFER_EXCEED_BALANCE");
-        balanceOf[msg.sender] = balanceOf[msg.sender].sub(value);
-        flashSupply = flashSupply.sub(value);
-        emit Transfer(msg.sender, address(0), value);
     }
 }
