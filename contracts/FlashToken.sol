@@ -23,8 +23,8 @@ contract FlashToken is IERC20 {
     // bytes32 private constant NAME_HASH = keccak256("FLASH")
     bytes32 private constant NAME_HASH = 0x345b72c36b14f1cee01efb8ac4b299dc7b8d873e28b4796034548a3d371a4d2f;
 
-    // bytes32 private constant VERSION_HASH = keccak256("1")
-    bytes32 private constant VERSION_HASH = 0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6;
+    // bytes32 private constant VERSION_HASH = keccak256("2")
+    bytes32 private constant VERSION_HASH = 0xd4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35;
 
     // bytes32 public constant PERMIT_TYPEHASH =
     // keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
