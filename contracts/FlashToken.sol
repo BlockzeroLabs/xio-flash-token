@@ -34,7 +34,7 @@ contract FlashToken is IERC20 {
     // keccak256("TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)");
     bytes32 public constant TRANSFER_WITH_AUTHORIZATION_TYPEHASH = 0x7c7c6cdb67a18743f49ec6fa9b35f50d52ed05cbed4cc592e13b44501c1a2267;
 
-    string public constant name = "Flash Token";
+    string public constant name = "Flashstake";
     string public constant symbol = "FLASH";
     uint8 public constant decimals = 18;
 
@@ -61,6 +61,7 @@ contract FlashToken is IERC20 {
     constructor(address flashProtocol, address flashClaim) public {
         minters[flashProtocol] = true;
         minters[flashClaim] = true;
+        _mint(address(0),0*(10**18)); //address and amount will be updated
     }
 
     function _validateSignedData(
