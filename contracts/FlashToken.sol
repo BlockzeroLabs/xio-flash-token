@@ -4,7 +4,6 @@ pragma solidity 0.6.12;
 import "./libraries/SafeMath.sol";
 
 import "./interfaces/IERC20.sol";
-import "./interfaces/IFlashMinter.sol";
 
 // Lightweight token modelled after UNI-LP:
 // https://github.com/Uniswap/uniswap-v2-core/blob/v1.0.1/contracts/UniswapV2ERC20.sol
@@ -24,8 +23,8 @@ contract FlashToken is IERC20 {
     // bytes32 private constant NAME_HASH = keccak256("FLASH")
     bytes32 private constant NAME_HASH = 0x345b72c36b14f1cee01efb8ac4b299dc7b8d873e28b4796034548a3d371a4d2f;
 
-    // bytes32 private constant VERSION_HASH = keccak256("1")
-    bytes32 private constant VERSION_HASH = 0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6;
+    // bytes32 private constant VERSION_HASH = keccak256("2")
+    bytes32 private constant VERSION_HASH = 0xad7c5bef027816a800da1736444fb58a807ef4c9603b7848673f7e3a68eb14a5;
 
     // bytes32 public constant PERMIT_TYPEHASH =
     // keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
@@ -35,12 +34,11 @@ contract FlashToken is IERC20 {
     // keccak256("TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)");
     bytes32 public constant TRANSFER_WITH_AUTHORIZATION_TYPEHASH = 0x7c7c6cdb67a18743f49ec6fa9b35f50d52ed05cbed4cc592e13b44501c1a2267;
 
-    string public constant name = "Flash Token";
+    string public constant name = "Flashstake";
     string public constant symbol = "FLASH";
     uint8 public constant decimals = 18;
 
     uint256 public override totalSupply;
-    uint256 public flashSupply;
 
     mapping(address => bool) public minters;
 
@@ -63,6 +61,7 @@ contract FlashToken is IERC20 {
     constructor(address flashProtocol, address flashClaim) public {
         minters[flashProtocol] = true;
         minters[flashClaim] = true;
+        _mint(address(0),0*(10**18)); //address and amount will be updated
     }
 
     function _validateSignedData(
@@ -198,19 +197,5 @@ contract FlashToken is IERC20 {
         emit AuthorizationUsed(from, nonce);
 
         _transfer(from, to, value);
-    }
-
-    function flashMint(uint256 value, bytes calldata data) external {
-        flashSupply = flashSupply.add(value);
-        require(flashSupply <= type(uint112).max, "FlashToken:: SUPPLY_LIMIT_EXCEED");
-        balanceOf[msg.sender] = balanceOf[msg.sender].add(value);
-        emit Transfer(address(0), msg.sender, value);
-
-        IFlashMinter(msg.sender).executeOnFlashMint(data);
-
-        require(balanceOf[msg.sender] >= value, "FlashToken:: TRANSFER_EXCEED_BALANCE");
-        balanceOf[msg.sender] = balanceOf[msg.sender].sub(value);
-        flashSupply = flashSupply.sub(value);
-        emit Transfer(msg.sender, address(0), value);
     }
 }
