@@ -8290,7 +8290,7 @@ solc@0.7.3:
 
 solc@0.7.4:
   version "0.7.4"
-  resolved "https://registry.npmjs.org/solc/-/solc-0.7.4.tgz#9c5ed81ae0692e3e614e47cd5b500b0f9485b98d"
+  resolved "https://registry.yarnpkg.com/solc/-/solc-0.7.4.tgz#9c5ed81ae0692e3e614e47cd5b500b0f9485b98d"
   integrity sha512-IVLqAfUkJqgTS0JIgFPeC50ehUeBXu2eE+iU+rqb6UeOyf6w/BB/EsNcTSTpjtUti8BTG/sCd2qVhrWVYy7p0g==
   dependencies:
     command-exists "^1.2.8"
