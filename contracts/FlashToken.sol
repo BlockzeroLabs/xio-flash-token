@@ -11,8 +11,6 @@ import "./interfaces/IERC20.sol";
 //   - An exposed `mint()` with minting role
 //   - An exposed `burn()`
 //   - ERC-3009 (`transferWithAuthorization()`)
-//   - flashMint() - allows to flashMint an arbitrary amount of FLASH, with the
-//     condition that it is burned before the end of the transaction.
 contract FlashToken is IERC20 {
     using SafeMath for uint256;
 
@@ -38,8 +36,8 @@ contract FlashToken is IERC20 {
     string public constant symbol = "FLASH";
     uint8 public constant decimals = 18;
 
-    address public constant FLASH_PROTOCOL = address(0x0);
-    address public constant FLASH_CLAIM = address(0x0);
+    address public constant FLASH_PROTOCOL = 0x15EB0c763581329C921C8398556EcFf85Cc48275;
+    address public constant FLASH_CLAIM = 0xf2319b6D2aB252d8D80D8CEC34DaF0079222A624;
 
     uint256 public override totalSupply;
 
