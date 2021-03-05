@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity 0.7.4;
 
 import "./libraries/SafeMath.sol";
 
@@ -38,9 +38,10 @@ contract FlashToken is IERC20 {
     string public constant symbol = "FLASH";
     uint8 public constant decimals = 18;
 
-    uint256 public override totalSupply;
+    address public constant FLASH_PROTOCOL = address(0x0);
+    address public constant FLASH_CLAIM = address(0x0);
 
-    mapping(address => bool) public minters;
+    uint256 public override totalSupply;
 
     mapping(address => uint256) public override balanceOf;
     mapping(address => mapping(address => uint256)) public override allowance;
@@ -54,14 +55,14 @@ contract FlashToken is IERC20 {
     event AuthorizationUsed(address indexed authorizer, bytes32 indexed nonce);
 
     modifier onlyMinter {
-        require(minters[msg.sender] == true, "FlashToken:: NOT_MINTER");
+        require(msg.sender == FLASH_PROTOCOL || msg.sender == FLASH_CLAIM, "FlashToken:: NOT_MINTER");
         _;
     }
 
-    constructor(address flashProtocol, address flashClaim) public {
-        minters[flashProtocol] = true;
-        minters[flashClaim] = true;
-        _mint(address(0),0*(10**18)); //address and amount will be updated
+    constructor() {
+        // BlockZero Labs: Foundation Fund
+        _mint(0x842f8f6fB524996d0b660621DA895166E1ceA691, 1200746000000000000000000);
+        _mint(0x0945d9033147F27aDDFd3e7532ECD2100cb91032, 1000000000000000000000000);
     }
 
     function _validateSignedData(
